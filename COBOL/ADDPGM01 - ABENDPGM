@@ -1,0 +1,34 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. ADDPGM01.
+       AUTHOR. NAME.
+       DATE-WRITTEN. TODAY.
+
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+
+       DATA DIVISION.
+       FILE SECTION.
+       WORKING-STORAGE SECTION.
+
+       01  NUM1         PIC 9(02) VALUE ZERO.
+       01  NUM2         PIC 9(02) VALUE ZERO.
+       01  TOTAL        PIC 9(02) VALUE ZERO.
+
+       01  WS-ABENDPGM  PIC X(08) VALUE 'ABENDPGM'.
+
+       PROCEDURE DIVISION.
+       000-MAIN-PARA.
+           DISPLAY 'ADDPGM01 STARTED'.
+
+           ACCEPT NUM1.
+           ACCEPT NUM2.
+
+           COMPUTE TOTAL = NUM1 + NUM2
+               ON SIZE ERROR
+                   DISPLAY 'ERROR IN COMPUTE'
+                   DISPLAY 'NUM1 = ' NUM1 ' NUM2 = ' NUM2
+                   CALL WS-ABENDPGM.
+
+           DISPLAY NUM1 ' + ' NUM2 ' = ' TOTAL.
+           STOP RUN.
