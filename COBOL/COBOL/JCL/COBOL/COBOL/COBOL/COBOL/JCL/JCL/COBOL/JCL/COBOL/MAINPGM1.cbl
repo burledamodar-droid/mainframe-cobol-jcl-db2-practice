@@ -1,0 +1,47 @@
+       ID DIVISION.
+       PROGRAM-ID. MAINPGM1.
+       AUTHOR. NAME.
+       DATE-WRITTEN. TODAY.
+
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+
+       DATA DIVISION.
+       FILE SECTION.
+
+       WORKING-STORAGE SECTION.
+
+       01 CUST-NAME       PIC X(20) VALUE SPACE.
+       01 STR-LEN         PIC 9(02) VALUE ZERO.
+       01 LETTER-FOUND    PIC X(01) VALUE SPACE.
+
+       PROCEDURE DIVISION.
+
+       000-MAIN-PARA.
+
+           DISPLAY 'AM IN MAINPGM'.
+
+           ACCEPT CUST-NAME.
+
+           DISPLAY 'CUSTOMER NAME IS 1 ' CUST-NAME.
+           DISPLAY 'TOTAL VARIABLE LEN IS '
+                   LENGTH OF CUST-NAME.
+
+           MOVE ZERO TO STR-LEN.
+           MOVE 'N' TO LETTER-FOUND.
+
+           CALL 'SUBPGM01'
+               USING CUST-NAME STR-LEN LETTER-FOUND.
+
+           DISPLAY 'TOTAL STRING LEN IS ' STR-LEN.
+
+           IF LETTER-FOUND = 'Y'
+               DISPLAY 'CUSTOMER NAME ' CUST-NAME
+                       ' CONTAINS LETTER A'
+           ELSE
+               DISPLAY 'CUSTOMER NAME ' CUST-NAME
+                       ' DO NOT HAVE LET A'
+           END-IF.
+
+           STOP RUN.
