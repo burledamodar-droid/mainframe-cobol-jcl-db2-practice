@@ -1,0 +1,16 @@
+//IBMUSERX JOB NOTIFY=&SYSUID
+//STEP1    EXEC PGM=IDCAMS
+//SYSPRINT DD SYSOUT=*
+//SYSIN    DD *
+  DEFINE CLUSTER -
+         (NAME(USER.VSAM.CUSTOMER) -
+          INDEXED -
+          KEYS(10 0) -
+          RECORDSIZE(100 100) -
+          TRACKS(5 2)) -
+         DATA -
+         (NAME(USER.VSAM.CUSTOMER.DATA)) -
+         INDEXED -
+         INDEX -
+         (NAME(USER.VSAM.CUSTOMER.INDEX))
+/*
