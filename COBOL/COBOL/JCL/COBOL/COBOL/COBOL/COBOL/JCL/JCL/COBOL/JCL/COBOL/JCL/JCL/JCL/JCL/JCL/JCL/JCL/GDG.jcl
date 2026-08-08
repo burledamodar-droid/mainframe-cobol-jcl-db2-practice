@@ -1,0 +1,19 @@
+//IBMUSERX JOB NOTIFY=&SYSUID
+
+//DEFINE   EXEC PGM=IDCAMS
+//SYSPRINT DD SYSOUT=*
+//SYSIN    DD *
+  DEFINE GDG -
+         (NAME(USER.GDG.CUSTOMER) -
+          LIMIT(5) -
+          NOEMPTY -
+          SCRATCH)
+/*
+
+//CREATE   EXEC PGM=IEFBR14
+//GDGFILE  DD DSN=USER.GDG.CUSTOMER(+1),
+//            DISP=(NEW,CATLG,DELETE),
+//            UNIT=3390,
+//            SPACE=(TRK,(1,1),RLSE),
+//            DCB=(RECFM=FB,LRECL=80,BLKSIZE=0)
+//
