@@ -1,0 +1,3 @@
+       01 MASTER-LAYOUT.
+           03 CARD-NUMBER       PIC X(05).
+           03 CUST-NAME         PIC X(20).
