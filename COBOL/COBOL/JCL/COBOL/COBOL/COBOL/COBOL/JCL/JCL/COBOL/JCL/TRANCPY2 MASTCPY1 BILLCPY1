@@ -1,0 +1,5 @@
+       01 TRANS-LAYOUT.
+           03 CARD-NUMBER       PIC X(05).
+           03 PREVIOUS-DUE      PIC S9(05)V9(02).
+           03 PREVIOUS-DUE-PAID PIC S9(05)V9(02).
+           03 DUE-AMT-TO-PAY    PIC S9(05)V9(02).
