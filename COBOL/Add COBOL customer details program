@@ -1,0 +1,78 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. CUSTPGM1.
+       AUTHOR. NAME.
+       DATE-WRITTEN. TODAY.
+
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+
+       DATA DIVISION.
+       FILE SECTION.
+
+       WORKING-STORAGE SECTION.
+
+       * Input Group
+       01 CUST-DETAILS-IN.
+          03 CUST-ID        PIC X(05) VALUE SPACES.
+          03 CUST-NAME      PIC X(10) VALUE SPACES.
+          03 CUST-GENDER    PIC X(10) VALUE SPACES.
+
+       * Output Group
+       01 CUST-DETAILS-OUT.
+          03 CUST-ID        PIC X(05) VALUE SPACES.
+          03 CUST-TITLE     PIC X(03) VALUE SPACES.
+          03 FILLER         PIC X(01) VALUE SPACES.
+          03 CUST-NAME      PIC X(10) VALUE SPACES.
+          03 CUST-GENDER    PIC X(10) VALUE SPACES.
+
+       * ABEND Program Name
+       01 WS-ABENDPGM       PIC X(08) VALUE 'ABENDPGM'.
+
+       PROCEDURE DIVISION.
+
+       000-MAIN-PARA.
+
+           DISPLAY 'CUSTPGM1 STARTED'.
+
+      * Initialize Input Variables
+           MOVE SPACES TO
+                CUST-ID     OF CUST-DETAILS-IN
+                CUST-NAME   OF CUST-DETAILS-IN
+                CUST-GENDER OF CUST-DETAILS-IN.
+
+      * Accept Input
+           ACCEPT CUST-ID     OF CUST-DETAILS-IN.
+           ACCEPT CUST-NAME   OF CUST-DETAILS-IN.
+           ACCEPT CUST-GENDER OF CUST-DETAILS-IN.
+
+      * Check Gender
+           IF CUST-GENDER OF CUST-DETAILS-IN = 'MALE'
+               MOVE 'MR' TO
+                    CUST-TITLE OF CUST-DETAILS-OUT
+           ELSE
+               IF CUST-GENDER OF CUST-DETAILS-IN = 'FEMALE'
+                   MOVE 'MRS' TO
+                        CUST-TITLE OF CUST-DETAILS-OUT
+               ELSE
+                   DISPLAY 'INVALID GENDER INPUT'
+                   DISPLAY CUST-DETAILS-IN
+                   CALL WS-ABENDPGM
+               END-IF
+           END-IF.
+
+      * Move Input to Output
+           MOVE CUST-ID OF CUST-DETAILS-IN
+             TO CUST-ID OF CUST-DETAILS-OUT.
+
+           MOVE CUST-NAME OF CUST-DETAILS-IN
+             TO CUST-NAME OF CUST-DETAILS-OUT.
+
+           MOVE CUST-GENDER OF CUST-DETAILS-IN
+             TO CUST-GENDER OF CUST-DETAILS-OUT.
+
+      * Display Output
+           DISPLAY 'CUSTOMER DETAILS WITH TITLE'
+                   CUST-DETAILS-OUT.
+
+           STOP RUN.
