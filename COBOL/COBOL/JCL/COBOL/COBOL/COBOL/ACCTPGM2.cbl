@@ -1,0 +1,202 @@
+       ID DIVISION.
+       PROGRAM-ID. ACCTPGM2.
+       AUTHOR. NAME.
+       DATE-WRITTEN. TODAY.
+
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT ACCT-INFILE ASSIGN TO ACCTDDIN
+               ORGANIZATION IS SEQUENTIAL
+               ACCESS MODE IS SEQUENTIAL
+               FILE STATUS IS WS-INF-STATUS.
+
+           SELECT SAVE-OTFILE ASSIGN TO SAVEDDOT
+               ORGANIZATION IS SEQUENTIAL
+               ACCESS MODE IS SEQUENTIAL
+               FILE STATUS IS WS-SAF-STATUS.
+
+           SELECT CURR-OTFILE ASSIGN TO CURRDDOT
+               ORGANIZATION IS SEQUENTIAL
+               ACCESS MODE IS SEQUENTIAL
+               FILE STATUS IS WS-CUF-STATUS.
+
+       DATA DIVISION.
+       FILE SECTION.
+       FD ACCT-INFILE
+           LABEL RECORD ARE STANDARD.
+       COPY ACCTCPY1
+           REPLACING ACCT-DETAILS BY ACCT-DETAILS-IN.
+
+       FD SAVE-OTFILE
+           LABEL RECORD ARE STANDARD.
+       COPY ACCTCPY1
+           REPLACING ACCT-DETAILS BY SAVE-DETAILS-OT.
+
+       FD CURR-OTFILE
+           LABEL RECORD ARE STANDARD.
+       COPY ACCTCPY1
+           REPLACING ACCT-DETAILS BY CURR-DETAILS-OT.
+
+       WORKING-STORAGE SECTION.
+       01 WS-INF-STATUS      PIC X(02) VALUE SPACE.
+       01 WS-SAF-STATUS      PIC X(02) VALUE SPACE.
+       01 WS-CUF-STATUS      PIC X(02) VALUE SPACE.
+       01 WS-IN-REC-CNT      PIC 9(02) VALUE ZERO.
+       01 WS-OT-REC-CNT      PIC 9(02) VALUE ZERO.
+       01 WS-ABENDPGM        PIC X(08) VALUE 'ABENDPGM'.
+
+       01 WS-END-OF-FILE     PIC X(01) VALUE SPACE.
+       01 WS-TOT-ACCT-BAL    PIC S9(3)V9(02) VALUE ZERO.
+       01 WS-TOT-SAVE-BAL    PIC S9(3)V9(02) VALUE ZERO.
+       01 WS-TOT-CURR-BAL    PIC S9(3)V9(02) VALUE ZERO.
+
+       PROCEDURE DIVISION.
+       0000-MAIN-PARA.
+           DISPLAY 'ACCTPGM2 STARTED'.
+
+           PERFORM 100-INITIAL-PARA THRU 100-EXIT
+           PERFORM 200-GET-INPUT-PARA THRU 200-EXIT
+           PERFORM 300-PROCESS-PARA THRU 300-EXIT
+               UNTIL WS-END-OF-FILE = 'Y'.
+
+           CLOSE ACCT-INFILE SAVE-OTFILE CURR-OTFILE.
+
+           DISPLAY 'TOTAL ACCT BALANCE IS ' WS-TOT-ACCT-BAL.
+           DISPLAY 'TOTAL SAVE BALANCE IS ' WS-TOT-SAVE-BAL.
+           DISPLAY 'TOTAL CURR BALANCE IS ' WS-TOT-CURR-BAL.
+
+           DISPLAY 'TOTAL INPUT REC COUNT ' WS-IN-REC-CNT.
+           DISPLAY 'TOTAL OUTPUT REC COUNT ' WS-OT-REC-CNT.
+
+           STOP RUN.
+
+       100-INITIAL-PARA.
+           MOVE ZERO TO WS-IN-REC-CNT
+                         WS-OT-REC-CNT
+                         WS-TOT-ACCT-BAL
+                         WS-TOT-SAVE-BAL
+                         WS-TOT-CURR-BAL.
+
+           MOVE 'N' TO WS-END-OF-FILE.
+
+           OPEN INPUT ACCT-INFILE.
+           OPEN OUTPUT SAVE-OTFILE CURR-OTFILE.
+
+           IF WS-INF-STATUS = '00'
+               CONTINUE
+           ELSE
+               DISPLAY 'ERROR IN 100-PARA'
+               DISPLAY 'OPEN ERROR - ACCT STATUS IS ' WS-INF-STATUS
+               CALL WS-ABENDPGM
+           END-IF.
+
+           IF WS-SAF-STATUS = '00'
+               CONTINUE
+           ELSE
+               DISPLAY 'ERROR IN 100-PARA'
+               DISPLAY 'OPEN ERROR - SAVE STATUS IS ' WS-SAF-STATUS
+               CALL WS-ABENDPGM
+           END-IF.
+
+           IF WS-CUF-STATUS = '00'
+               CONTINUE
+           ELSE
+               DISPLAY 'ERROR IN 100-PARA'
+               DISPLAY 'OPEN ERROR - CURR STATUS IS ' WS-CUF-STATUS
+               CALL WS-ABENDPGM
+           END-IF.
+
+           INITIALIZE ACCT-DETAILS-IN SAVE-DETAILS-OT.
+           INITIALIZE CURR-DETAILS-OT.
+
+       100-EXIT. EXIT.
+
+       200-GET-INPUT-PARA.
+           READ ACCT-INFILE
+               AT END
+                   MOVE 'Y' TO WS-END-OF-FILE
+                   GO TO 200-EXIT.
+
+           ADD +1 TO WS-IN-REC-CNT.
+
+       200-EXIT. EXIT.
+
+       300-PROCESS-PARA.
+           COMPUTE WS-TOT-ACCT-BAL =
+                   WS-TOT-ACCT-BAL +
+                   ACCT-BAL OF ACCT-DETAILS-IN.
+
+           IF ACCT-TYPE OF ACCT-DETAILS-IN = 'SAVINGS'
+               COMPUTE WS-TOT-SAVE-BAL =
+                       WS-TOT-SAVE-BAL +
+                       ACCT-BAL OF ACCT-DETAILS-IN
+               PERFORM 320-MOVE-WRITE-SAVE-PARA THRU 320-EXIT
+           ELSE
+               IF ACCT-TYPE OF ACCT-DETAILS-IN = 'CURRENT'
+                   COMPUTE WS-TOT-CURR-BAL =
+                           WS-TOT-CURR-BAL +
+                           ACCT-BAL OF ACCT-DETAILS-IN
+                   PERFORM 330-MOVE-WRITE-CURR-PARA THRU 330-EXIT
+               ELSE
+                   CONTINUE
+               END-IF
+           END-IF.
+
+           PERFORM 200-GET-INPUT-PARA THRU 200-EXIT.
+
+       300-EXIT. EXIT.
+
+       320-MOVE-WRITE-SAVE-PARA.
+           MOVE ACCT-NUMBER OF ACCT-DETAILS-IN
+             TO ACCT-NUMBER OF SAVE-DETAILS-OT.
+
+           MOVE CUST-NAME OF ACCT-DETAILS-IN
+             TO CUST-NAME OF SAVE-DETAILS-OT.
+
+           MOVE ACCT-BAL OF ACCT-DETAILS-IN
+             TO ACCT-BAL OF SAVE-DETAILS-OT.
+
+           MOVE ACCT-TYPE OF ACCT-DETAILS-IN
+             TO ACCT-TYPE OF SAVE-DETAILS-OT.
+
+           WRITE SAVE-DETAILS-OT.
+
+           IF WS-SAF-STATUS = '00'
+               ADD +1 TO WS-OT-REC-CNT
+           ELSE
+               DISPLAY 'ERROR IN 320-PARA'
+               DISPLAY 'WRITE ERROR - STATUS IS ' WS-SAF-STATUS
+               DISPLAY 'RECORD IS '
+                   ACCT-NUMBER OF ACCT-DETAILS-IN
+               CALL WS-ABENDPGM
+           END-IF.
+
+       320-EXIT. EXIT.
+
+       330-MOVE-WRITE-CURR-PARA.
+           MOVE ACCT-NUMBER OF ACCT-DETAILS-IN
+             TO ACCT-NUMBER OF CURR-DETAILS-OT.
+
+           MOVE CUST-NAME OF ACCT-DETAILS-IN
+             TO CUST-NAME OF CURR-DETAILS-OT.
+
+           MOVE ACCT-BAL OF ACCT-DETAILS-IN
+             TO ACCT-BAL OF CURR-DETAILS-OT.
+
+           MOVE ACCT-TYPE OF ACCT-DETAILS-IN
+             TO ACCT-TYPE OF CURR-DETAILS-OT.
+
+           WRITE CURR-DETAILS-OT.
+
+           IF WS-CUF-STATUS = '00'
+               ADD +1 TO WS-OT-REC-CNT
+           ELSE
+               DISPLAY 'ERROR IN 330-PARA'
+               DISPLAY 'WRITE ERROR - STATUS IS ' WS-CUF-STATUS
+               DISPLAY 'RECORD IS '
+                   ACCT-NUMBER OF ACCT-DETAILS-IN
+               CALL WS-ABENDPGM
+           END-IF.
+
+       330-EXIT. EXIT.
